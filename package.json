@@ -2,7 +2,6 @@
   "name": "@xdave/bull-mq-transport",
   "version": "1.0.0",
   "description": "BullMQ Microservice Transport for NestJS",
-  "private": true,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
