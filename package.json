@@ -2,8 +2,8 @@
   "name": "@xdave/bull-mq-transport",
   "version": "1.0.1",
   "description": "BullMQ Microservice Transport for NestJS",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/libs/bull-mq-transport/src/index.js",
+  "types": "dist/libs/bull-mq-transport/src/index.d.ts",
   "scripts": {
     "start": "nest start example --watch",
     "build": "tsc --project tsconfig.build.json",
