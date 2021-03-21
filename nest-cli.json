@@ -1,4 +1,30 @@
 {
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src"
+  "sourceRoot": "apps/example/src",
+  "compilerOptions": {
+    "webpack": true,
+    "tsConfigPath": "apps/example/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/example",
+  "projects": {
+    "example": {
+      "type": "application",
+      "root": "apps/example",
+      "entryFile": "main",
+      "sourceRoot": "apps/example/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/example/tsconfig.app.json"
+      }
+    },
+    "bull-mq-transport": {
+      "type": "library",
+      "root": "libs/bull-mq-transport",
+      "entryFile": "index",
+      "sourceRoot": "libs/bull-mq-transport/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/bull-mq-transport/tsconfig.lib.json"
+      }
+    }
+  }
 }

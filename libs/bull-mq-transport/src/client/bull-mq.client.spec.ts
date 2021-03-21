@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { Queue } from 'bullmq';
+import { Queue, QueueEvents } from 'bullmq';
 import { BullMqClient } from '.';
 import {
   createMockFromClass,
@@ -7,30 +7,36 @@ import {
   Mock,
 } from '../../test/nest-test-helpers';
 import { BULLMQ_MODULE_OPTIONS } from '../constants';
+import { QueueEventsFactory } from '../factories/queue-events.factory';
 import { QueueFactory } from '../factories/queue.factory';
 
 describe('BullMqClient', () => {
   let client: BullMqClient;
   let queueFactory: Mock<QueueFactory>;
+  let queueEventsFactory: Mock<QueueEventsFactory>;
   let queue: Mock<Queue>;
+  let events: Mock<QueueEvents>;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
         { provide: BULLMQ_MODULE_OPTIONS, useValue: {} },
-        ...createMockProviders(QueueFactory),
+        ...createMockProviders(QueueFactory, QueueEventsFactory),
         BullMqClient,
       ],
     }).compile();
 
     client = module.get(BullMqClient);
     queueFactory = module.get(QueueFactory);
+    queueEventsFactory = module.get(QueueEventsFactory);
   });
 
   beforeEach(async () => {
     queue = createMockFromClass(Queue);
+    events = createMockFromClass(QueueEvents);
 
-    queueFactory.create.returns(queue);
+    queueFactory.create.mockReturnValue(queue);
+    queueEventsFactory.create.mockReturnValue(events);
   });
 
   afterEach(async () => {

@@ -1,6 +1,7 @@
-import { DynamicModule, Global, Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { BullMqClient } from './client/bull-mq.client';
 import { BULLMQ_MODULE_OPTIONS } from './constants/bull-mq.constants';
+import { QueueEventsFactory } from './factories/queue-events.factory';
 import { QueueSchedulerFactory } from './factories/queue-scheduler.factory';
 import { QueueFactory } from './factories/queue.factory';
 import { WorkerFactory } from './factories/worker.factory';
@@ -9,16 +10,17 @@ import { IBullMqModuleOptionsFactory } from './interfaces/bull-mq-module-options
 import { IBullMqModuleOptions } from './interfaces/bull-mq-module-options.interface';
 import { BullMqServer } from './server/bull-mq.server';
 
-@Global()
 @Module({})
 export class BullMqCoreModule {
   static forRoot(options: IBullMqModuleOptions): DynamicModule {
     return {
       module: BullMqCoreModule,
+      global: true,
       providers: [
         { provide: BULLMQ_MODULE_OPTIONS, useValue: options },
         QueueSchedulerFactory,
         QueueFactory,
+        QueueEventsFactory,
         WorkerFactory,
         BullMqServer,
         BullMqClient,
@@ -30,12 +32,14 @@ export class BullMqCoreModule {
   static forRootAsync(options: IBullMqModuleOptionsAsync): DynamicModule {
     return {
       module: BullMqCoreModule,
+      global: true,
       imports: options.imports ?? [],
       providers: [
         ...(options.providers ?? []),
         ...this.createAsyncProviders(options),
         QueueSchedulerFactory,
         QueueFactory,
+        QueueEventsFactory,
         WorkerFactory,
         BullMqServer,
         BullMqClient,
@@ -57,7 +61,7 @@ export class BullMqCoreModule {
     }
 
     throw new Error(
-      'Invalid AmqpModule async options: one of `useClass`, `useExisting` or `useFactory` should be defined.',
+      'Invalid BullMqModule async options: one of `useClass`, `useExisting` or `useFactory` should be defined.',
     );
   }
 

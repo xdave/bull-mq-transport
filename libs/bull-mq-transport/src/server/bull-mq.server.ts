@@ -1,6 +1,8 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CustomTransportStrategy, Server } from '@nestjs/microservices';
 import { Job, QueueScheduler, Worker } from 'bullmq';
+import { of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { BULLMQ_MODULE_OPTIONS } from '../constants/bull-mq.constants';
 import { QueueSchedulerFactory } from '../factories/queue-scheduler.factory';
 import { WorkerFactory } from '../factories/worker.factory';
@@ -29,7 +31,6 @@ export class BullMqServer extends Server implements CustomTransportStrategy {
       if (
         pattern &&
         handler &&
-        handler.isEventHandler &&
         !this.workers.has(pattern) &&
         !this.schedulers.has(pattern)
       ) {
@@ -38,8 +39,20 @@ export class BullMqServer extends Server implements CustomTransportStrategy {
         });
         const worker = this.workerFactory.create(
           pattern,
-          async (job: Job) =>
-            (await handler(job.data.payload, job)).subscribe(),
+          async (job: Job) => {
+            const value = await handler(job.data.payload, job);
+            return new Promise((resolve, reject) => {
+              const stream$ = this.transformToObservable(value).pipe(
+                catchError((err) => of(err)),
+              );
+              this.send(stream$, (packet) => {
+                if (packet.err) {
+                  return reject(packet.err);
+                }
+                resolve(packet.response);
+              });
+            });
+          },
           { connection: this.options.connection },
         );
         this.schedulers.set(pattern, scheduler);
@@ -51,10 +64,10 @@ export class BullMqServer extends Server implements CustomTransportStrategy {
   }
 
   async close() {
-    for (const [, worker] of this.workers) {
+    for (const worker of this.workers.values()) {
       await worker.close();
     }
-    for (const [, scheduler] of this.schedulers) {
+    for (const scheduler of this.schedulers.values()) {
       await scheduler.close();
     }
   }

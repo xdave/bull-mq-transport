@@ -1,0 +1,22 @@
+version: '3.4'
+
+services:
+  api:
+    build:
+      context: .
+    env_file: .env.docker
+    restart: always
+    volumes:
+      - ./apps:/app/apps
+      - ./libs:/app/libs
+    ports:
+      - 3000:3000
+    command: npm start
+    depends_on:
+      - redis
+
+  redis:
+    image: redis
+    restart: always
+    # logging:
+    #   driver: none

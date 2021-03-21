@@ -36,8 +36,8 @@ describe('BullMqServer', () => {
     scheduler = createMockFromClass(QueueScheduler);
     worker = createMockFromClass(Worker);
 
-    schedulerFactory.create.returns(scheduler);
-    workerFactory.create.returns(worker);
+    schedulerFactory.create.mockReturnValue(scheduler);
+    workerFactory.create.mockReturnValue(worker);
   });
 
   afterEach(async () => {

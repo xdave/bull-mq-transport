@@ -1,10 +1,19 @@
 import { Abstract, Provider, Type } from '@nestjs/common';
-import * as sinon from 'ts-sinon';
+import { mock } from 'jest-mock-extended';
 
-export type Mock<T> = sinon.StubbedInstance<T>;
+export type FunctionPropertyNames<T> = {
+  [K in keyof T]: T[K] extends (...args: any[]) => any ? K : never;
+}[keyof T];
+
+export type FunctionsOf<T> = Pick<T, FunctionPropertyNames<T>>;
+
+export type Mock<T> = T &
+  {
+    [K in keyof FunctionsOf<T>]: jest.Mock<ReturnType<T[K]>, Parameters<T[K]>>;
+  };
 
 export const createMockFromClass = <T>(_Ctor: Type<T> | Abstract<T>): Mock<T> =>
-  sinon.stubInterface<any>();
+  mock<any>();
 
 export const createMockProvider = <T>(
   Ctor: Type<any> | Abstract<any>,

@@ -1,8 +1,7 @@
 export default {
   preset: 'ts-jest',
-  setupFilesAfterEnv: ['jest-sinon'],
   moduleFileExtensions: ['js', 'json', 'ts'],
-  rootDir: 'src',
+  rootDir: 'libs/bull-mq-transport/src',
   testRegex: '.*\\.spec\\.ts$',
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
