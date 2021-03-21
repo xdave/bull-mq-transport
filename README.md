@@ -13,14 +13,14 @@ Like the `@nestjs/bull` module, except it works with `@nestjs/microservices` and
 Install:
 
 ```
-$ npm i @nestjs/microservices bullmq @xdave/bull-mq-transport
+$ npm i @nestjs/microservices bullmq bull-mq-transport
 ```
 
 Import into AppModule and provide Redis connection settings (can also provide an existing `ioredis` connection instance):
 
 ```ts
 import { Module } from '@nestjs/common';
-import { BullMqModule } from '@xdave/bull-mq-transport';
+import { BullMqModule } from 'bull-mq-transport';
 
 @Module({
   imports: [
@@ -37,7 +37,7 @@ Or, delcare an asynchronous factory to provide the module options:
 
 ```ts
 import { Module } from '@nestjs/common';
-import { BullMqModule } from '@xdave/bull-mq-transport';
+import { BullMqModule } from 'bull-mq-transport';
 import { ConfigService } from './config.service';
 
 @Module({
@@ -65,7 +65,7 @@ import {
   BullMqModule,
   IBullMqModuleOptions,
   IBullMqModuleOptionsFactory,
-} from '@xdave/bull-mq-transport';
+} from 'bull-mq-transport';
 import { ConfigService } from './config.service';
 
 @Injectable()

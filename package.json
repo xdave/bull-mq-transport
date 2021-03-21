@@ -1,5 +1,5 @@
 {
-  "name": "@xdave/bull-mq-transport",
+  "name": "bull-mq-transport",
   "version": "1.0.1",
   "description": "BullMQ Microservice Transport for NestJS",
   "main": "dist/libs/bull-mq-transport/src/index.js",
