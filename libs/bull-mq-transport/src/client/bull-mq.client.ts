@@ -35,7 +35,7 @@ export class BullMqClient extends ClientProxy {
   protected publish(
     packet: ReadPacket<IBullMqEvent<any>>,
     callback: (packet: WritePacket<any>) => void,
-  ): Function {
+  ): () => void {
     const queue = this.getQueue(packet.pattern);
     const events = this.queueEventsFactory.create(packet.pattern, {
       connection: this.options.connection,

@@ -8,7 +8,7 @@ export const exampleBoostrap = async () => {
   const bullMqServer = app.get(BullMqServer);
 
   app.connectMicroservice({ strategy: bullMqServer }, options);
-  await app.startAllMicroservicesAsync();
+  await app.startAllMicroservices();
 
   await app.listen(3000);
 };
