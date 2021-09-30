@@ -25,7 +25,7 @@ export class BullMqCoreModule {
         BullMqServer,
         BullMqClient,
       ],
-      exports: [BullMqServer, BullMqClient],
+      exports: [BullMqServer, BullMqClient, BULLMQ_MODULE_OPTIONS],
     };
   }
 
@@ -44,7 +44,7 @@ export class BullMqCoreModule {
         BullMqServer,
         BullMqClient,
       ],
-      exports: [BullMqServer, BullMqClient],
+      exports: [BullMqServer, BullMqClient, BULLMQ_MODULE_OPTIONS],
     };
   }
 

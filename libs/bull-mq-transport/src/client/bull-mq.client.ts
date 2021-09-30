@@ -1,8 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/ban-types */
 import { Inject, Injectable } from '@nestjs/common';
-import { ClientProxy, ReadPacket, WritePacket } from '@nestjs/microservices';
+import {
+  ClientProxy,
+  ReadPacket,
+  RpcException,
+  WritePacket,
+} from '@nestjs/microservices';
 import { Queue } from 'bullmq';
+import { v4 } from 'uuid';
 import { BULLMQ_MODULE_OPTIONS } from '../constants/bull-mq.constants';
 import { QueueEventsFactory } from '../factories/queue-events.factory';
 import { QueueFactory } from '../factories/queue.factory';
@@ -11,8 +15,6 @@ import { IBullMqModuleOptions } from '../interfaces/bull-mq-module-options.inter
 
 @Injectable()
 export class BullMqClient extends ClientProxy {
-  protected readonly queues = new Map<string, Queue>();
-
   constructor(
     @Inject(BULLMQ_MODULE_OPTIONS)
     private readonly options: IBullMqModuleOptions,
@@ -27,9 +29,7 @@ export class BullMqClient extends ClientProxy {
   }
 
   async close(): Promise<void> {
-    for (const [, queue] of this.queues) {
-      await queue.close();
-    }
+    return;
   }
 
   protected publish(
@@ -46,19 +46,32 @@ export class BullMqClient extends ClientProxy {
         isDisposed: true,
       }),
     );
-    events.on('failed', (job) =>
+    events.on('failed', async (jobInfo) => {
+      const job = await queue.getJob(jobInfo.jobId);
+      const err = new RpcException(jobInfo.failedReason);
+      err.stack = job?.stacktrace?.[0];
       callback({
-        err: job.failedReason,
+        err,
         isDisposed: true,
-      }),
-    );
+      });
+    });
     queue
       .add(packet.pattern, packet.data, {
-        jobId: packet.data.id,
-        delay: packet.data.delay,
+        jobId: packet.data.id ?? v4(),
+        ...packet.data.options,
       })
-      .then(async (job) => await job.waitUntilFinished(events));
-    return () => events.close().then();
+      .then(async (job) => {
+        try {
+          await job.waitUntilFinished(events);
+        } catch {
+          // BullMq unnecessarily re-throws the error we're handling in
+          // waitUntilFinished(), so we ignore that here.
+        } finally {
+          await events.close();
+          await queue.close();
+        }
+      });
+    return () => void 0;
   }
 
   protected async dispatchEvent(
@@ -66,18 +79,17 @@ export class BullMqClient extends ClientProxy {
   ): Promise<any> {
     const queue = this.getQueue(packet.pattern);
     await queue.add(packet.pattern, packet.data, {
-      jobId: packet.data.id,
-      delay: packet.data.delay,
+      jobId: packet.data.id ?? v4(),
+      ...packet.data.options,
     });
+    await queue.close();
   }
 
   protected getQueue(pattern: any): Queue {
-    const queue =
-      this.queues.get(pattern) ??
-      this.queueFactory.create(pattern, {
-        connection: this.options.connection,
-      });
-    this.queues.set(pattern, queue);
+    const queue = this.queueFactory.create(pattern, {
+      connection: this.options.connection,
+      sharedConnection: true,
+    });
     return queue;
   }
 }

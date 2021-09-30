@@ -9,14 +9,17 @@ services:
     volumes:
       - ./apps:/app/apps
       - ./libs:/app/libs
+      - /app/node_modules
     ports:
       - 3000:3000
-    command: npm start
+    command: npm run start:dev
     depends_on:
       - redis
 
   redis:
     image: redis
     restart: always
-    # logging:
-    #   driver: none
+    volumes:
+      - /data
+    logging:
+      driver: none

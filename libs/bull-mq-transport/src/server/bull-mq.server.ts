@@ -1,8 +1,10 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { CustomTransportStrategy, Server } from '@nestjs/microservices';
+import {
+  CustomTransportStrategy,
+  Server,
+  Transport,
+} from '@nestjs/microservices';
 import { Job, QueueScheduler, Worker } from 'bullmq';
-import { of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
 import { BULLMQ_MODULE_OPTIONS } from '../constants/bull-mq.constants';
 import { QueueSchedulerFactory } from '../factories/queue-scheduler.factory';
 import { WorkerFactory } from '../factories/worker.factory';
@@ -10,6 +12,7 @@ import { IBullMqModuleOptions } from '../interfaces/bull-mq-module-options.inter
 
 @Injectable()
 export class BullMqServer extends Server implements CustomTransportStrategy {
+  transportId?: Transport | undefined;
   protected readonly logger = new Logger(this.constructor.name);
   protected readonly workers = new Map<string, Worker>();
   protected readonly schedulers = new Map<string, QueueScheduler>();
@@ -26,7 +29,7 @@ export class BullMqServer extends Server implements CustomTransportStrategy {
     this.initializeDeserializer(this.deserializer);
   }
 
-  listen(callback: () => void) {
+  listen(callback: (...optionalParams: unknown[]) => void) {
     for (const [pattern, handler] of this.messageHandlers) {
       if (
         pattern &&
@@ -36,14 +39,14 @@ export class BullMqServer extends Server implements CustomTransportStrategy {
       ) {
         const scheduler = this.queueSchedulerFactory.create(pattern, {
           connection: this.options.connection,
+          sharedConnection: true,
         });
         const worker = this.workerFactory.create(
           pattern,
-          async (job: Job) => {
-            const value = await handler(job.data.payload, job);
-            return new Promise((resolve, reject) => {
-              const stream$ = this.transformToObservable(value).pipe(
-                catchError((err) => of(err)),
+          (job: Job) => {
+            return new Promise<unknown>(async (resolve, reject) => {
+              const stream$ = this.transformToObservable(
+                await handler(job.data.payload, job),
               );
               this.send(stream$, (packet) => {
                 if (packet.err) {
@@ -53,7 +56,7 @@ export class BullMqServer extends Server implements CustomTransportStrategy {
               });
             });
           },
-          { connection: this.options.connection },
+          { connection: this.options.connection, sharedConnection: true },
         );
         this.schedulers.set(pattern, scheduler);
         this.workers.set(pattern, worker);

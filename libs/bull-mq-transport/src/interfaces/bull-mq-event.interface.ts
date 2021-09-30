@@ -1,5 +1,7 @@
+import { JobsOptions } from 'bullmq';
+
 export interface IBullMqEvent<T> {
-  id: string;
-  delay?: number;
+  id?: string;
   payload: T;
+  options?: JobsOptions;
 }

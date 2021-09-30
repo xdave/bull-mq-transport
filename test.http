@@ -3,3 +3,9 @@ GET http://localhost:3000/example/hello
 
 GET http://localhost:3000/example/thing
 ###
+
+GET http://localhost:3000/example/event_error
+###
+
+GET http://localhost:3000/example/rpc_error
+###

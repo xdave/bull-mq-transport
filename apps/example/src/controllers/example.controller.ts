@@ -4,10 +4,10 @@ import {
   EventPattern,
   MessagePattern,
   Payload,
+  RpcException,
 } from '@nestjs/microservices';
 import { BullMqClient } from '@xdave/bull-mq-transport';
 import { Job } from 'bullmq';
-import { v4 } from 'uuid';
 import { ExampleHelloWorldSent } from '../events/example-hello-world-sent.event';
 
 @Controller('example')
@@ -17,9 +17,7 @@ export class ExampleController {
   @Get('hello')
   sendHello() {
     return this.client.emit('events', {
-      id: v4(),
       payload: new ExampleHelloWorldSent('Hello, world!'),
-      // delay: 4000,
     });
   }
 
@@ -28,10 +26,29 @@ export class ExampleController {
     console.log('got event:', event, job.id);
   }
 
+  @Get('event_error')
+  sendEventError() {
+    return this.client.emit('event_error_tests', {
+      payload: {},
+      options: {
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 1000,
+        },
+      },
+    });
+  }
+
+  @EventPattern('event_error_tests')
+  handleEventErrorTest(@Payload() event: any, @Ctx() job: Job) {
+    console.log('got event:', event, job.id);
+    throw new RpcException('Some event error!');
+  }
+
   @Get('thing')
   thing() {
     return this.client.send('things', {
-      id: v4(),
       payload: 'hello thing',
     });
   }
@@ -40,5 +57,25 @@ export class ExampleController {
   async handleThing(@Payload() msg: string, @Ctx() job: Job) {
     console.log('got message:', msg, job.id);
     return { reply: msg.toUpperCase() };
+  }
+
+  @Get('rpc_error')
+  sendRpcErrorTest() {
+    return this.client.send('rpc_error_tests', {
+      payload: {},
+      options: {
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 1000,
+        },
+      },
+    });
+  }
+
+  @MessagePattern('rpc_error_tests')
+  async handleRpcErrorTest(@Payload() msg: any, @Ctx() job: Job) {
+    console.log('got message:', msg, job.id);
+    throw new RpcException('Some random RPC error!');
   }
 }

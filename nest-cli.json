@@ -1,12 +1,10 @@
 {
   "collection": "@nestjs/schematics",
-  "sourceRoot": "apps/example/src",
   "compilerOptions": {
-    "webpack": true,
-    "tsConfigPath": "apps/example/tsconfig.app.json"
+    "webpack": false,
+    "deleteOutDir": true
   },
   "monorepo": true,
-  "root": "apps/example",
   "projects": {
     "example": {
       "type": "application",

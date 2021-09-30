@@ -7,13 +7,14 @@ export type FunctionPropertyNames<T> = {
 
 export type FunctionsOf<T> = Pick<T, FunctionPropertyNames<T>>;
 
-export type Mock<T> = T &
-  {
-    [K in keyof FunctionsOf<T>]: jest.Mock<ReturnType<T[K]>, Parameters<T[K]>>;
-  };
+export type Mock<T> = T & {
+  [K in keyof FunctionsOf<T>]: jest.Mock<ReturnType<T[K]>, Parameters<T[K]>>;
+};
+
+export const createMock = <T>(): Mock<T> => mock<T>();
 
 export const createMockFromClass = <T>(_Ctor: Type<T> | Abstract<T>): Mock<T> =>
-  mock<any>();
+  createMock<T>();
 
 export const createMockProvider = <T>(
   Ctor: Type<any> | Abstract<any>,

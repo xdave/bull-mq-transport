@@ -206,5 +206,12 @@ See the apps/example directory for a complete example.
 
 This package is a work in progress. Features include:
 
-- [x] RPC-style request/response-style [complete]
-- [ ] Ability to provide more Queue, Worker, and Job options
+- [x] Pub/Sub-style events
+- [x] RPC-style request/response-style
+- [x] Optional BullMqRpcExceptionFilter filter that can pass the stack trace back to HTTP if needed
+  - [x] With provided Job options, retry & backoff, work
+  - [x] Configurable optional exception logging LogLevel
+  - [x] Optional RpcValidationPipe that exposes class-validator validation errors as RpcExceptions (also with more detail)
+- [x] Ability to provide more Job options (all supported)
+- [ ] Ability to provide more Queue options
+- [ ] Ability to provide more Worker options

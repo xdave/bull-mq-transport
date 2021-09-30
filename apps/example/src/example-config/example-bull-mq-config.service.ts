@@ -15,6 +15,7 @@ export class ExampleBullMqConfigService implements IBullMqModuleOptionsFactory {
         host: this.config.host,
         port: this.config.port,
       },
+      // logExceptionsAsLevel: 'warn',
     };
   }
 }
