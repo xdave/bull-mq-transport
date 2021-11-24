@@ -12,7 +12,8 @@ import { IBullMqModuleOptions } from '../interfaces/bull-mq-module-options.inter
 
 @Injectable()
 export class BullMqServer extends Server implements CustomTransportStrategy {
-  transportId?: Transport | undefined;
+  transportId = Transport.REDIS;
+
   protected readonly logger = new Logger(this.constructor.name);
   protected readonly workers = new Map<string, Worker>();
   protected readonly schedulers = new Map<string, QueueScheduler>();

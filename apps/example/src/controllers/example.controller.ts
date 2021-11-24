@@ -5,6 +5,7 @@ import {
   MessagePattern,
   Payload,
   RpcException,
+  Transport,
 } from '@nestjs/microservices';
 import { BullMqClient } from '@xdave/bull-mq-transport';
 import { Job } from 'bullmq';
@@ -21,7 +22,7 @@ export class ExampleController {
     });
   }
 
-  @EventPattern('events')
+  @EventPattern('events', Transport.REDIS)
   handleHello(@Payload() event: ExampleHelloWorldSent, @Ctx() job: Job) {
     console.log('got event:', event, job.id);
   }
@@ -40,7 +41,7 @@ export class ExampleController {
     });
   }
 
-  @EventPattern('event_error_tests')
+  @EventPattern('event_error_tests', Transport.REDIS)
   handleEventErrorTest(@Payload() event: any, @Ctx() job: Job) {
     console.log('got event:', event, job.id);
     throw new RpcException('Some event error!');
@@ -53,7 +54,7 @@ export class ExampleController {
     });
   }
 
-  @MessagePattern('things')
+  @MessagePattern('things', Transport.REDIS)
   async handleThing(@Payload() msg: string, @Ctx() job: Job) {
     console.log('got message:', msg, job.id);
     return { reply: msg.toUpperCase() };
@@ -73,9 +74,15 @@ export class ExampleController {
     });
   }
 
-  @MessagePattern('rpc_error_tests')
+  @MessagePattern('rpc_error_tests', Transport.REDIS)
   async handleRpcErrorTest(@Payload() msg: any, @Ctx() job: Job) {
     console.log('got message:', msg, job.id);
     throw new RpcException('Some random RPC error!');
+  }
+
+  @MessagePattern('some_other_transport', Transport.RMQ)
+  async someOtherThing(@Payload() _msg: any, @Ctx() _ctx: any) {
+    // This is to test if BullMQ server ends up registering a queue for this,
+    // which it shouldn't.
   }
 }
