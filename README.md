@@ -5,6 +5,7 @@ Like the `@nestjs/bull` module, except it works with `@nestjs/microservices` and
 - Single module import with custom connection settings
 - Synchronous or Asynchronous module configuration (ie. options factory)
 - Queues/Workers are declared by creating `@MessagePattern(...)` and `@EventPattern(...)` handlers on Controllers
+  - NOTE: you must pass the `Transport.REDIS` option to these decorators
 - The `ClientProxy` (`BullMqClient`) can `send()`/`emit()` to any Queue
 - BullMQ queue connections are created on-demand and re-used
 
@@ -117,7 +118,7 @@ Finally, you'll need to declare some controllers to act as Workers for BullMQ:
 ```ts
 @Controller()
 export class SomethingController {
-  @EventPattern('stuff')
+  @EventPattern('stuff', Transport.REDIS)
   async handleStuff(@Payload() data: StuffDto, @Ctx() job: Job) {
     // ... do something with the stuff
   }
@@ -192,7 +193,7 @@ With a worker that uses `@MessagePattern(...)` and returns a value:
 ```ts
 @Controller()
 export class SomethingController {
-  @MessagePattern('stuff')
+  @MessagePattern('stuff', Transport.REDIS)
   async handleStuff(@Payload() data: StuffDto, @Ctx() job: Job) {
     // ... do something with the stuff
     return { foo: 'bar' };

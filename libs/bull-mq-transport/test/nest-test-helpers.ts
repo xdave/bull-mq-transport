@@ -1,14 +1,10 @@
 import { Abstract, Provider, Type } from '@nestjs/common';
 import { mock } from 'jest-mock-extended';
 
-export type FunctionPropertyNames<T> = {
-  [K in keyof T]: T[K] extends (...args: any[]) => any ? K : never;
-}[keyof T];
-
-export type FunctionsOf<T> = Pick<T, FunctionPropertyNames<T>>;
-
 export type Mock<T> = T & {
-  [K in keyof FunctionsOf<T>]: jest.Mock<ReturnType<T[K]>, Parameters<T[K]>>;
+  [K in keyof T]: T[K] extends (...args: infer A) => infer B
+    ? jest.Mock<B, A>
+    : T[K];
 };
 
 export const createMock = <T>(): Mock<T> => mock<T>();
