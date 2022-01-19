@@ -6,9 +6,8 @@ import {
 } from '@nestjs/microservices';
 import { Job, QueueScheduler, Worker } from 'bullmq';
 import { BULLMQ_MODULE_OPTIONS } from '../constants/bull-mq.constants';
-import { QueueSchedulerFactory } from '../factories/queue-scheduler.factory';
+import { IBullMqModuleOptions, QueueSchedulerFactory } from '../';
 import { WorkerFactory } from '../factories/worker.factory';
-import { IBullMqModuleOptions } from '../interfaces/bull-mq-module-options.interface';
 
 @Injectable()
 export class BullMqServer extends Server implements CustomTransportStrategy {
@@ -57,7 +56,10 @@ export class BullMqServer extends Server implements CustomTransportStrategy {
               });
             });
           },
-          { connection: this.options.connection, sharedConnection: true },
+          {
+            ...this.options,
+            sharedConnection: true,
+          },
         );
         this.schedulers.set(pattern, scheduler);
         this.workers.set(pattern, worker);

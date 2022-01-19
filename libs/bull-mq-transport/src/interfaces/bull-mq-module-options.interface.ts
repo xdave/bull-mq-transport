@@ -1,7 +1,6 @@
 import { LogLevel } from '@nestjs/common';
-import { ConnectionOptions } from 'bullmq';
+import { WorkerOptions } from 'bullmq';
 
-export interface IBullMqModuleOptions {
-  connection: ConnectionOptions;
+export interface IBullMqModuleOptions extends WorkerOptions {
   logExceptionsAsLevel?: LogLevel | 'off';
 }
