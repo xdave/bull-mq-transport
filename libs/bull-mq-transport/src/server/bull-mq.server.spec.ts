@@ -2,16 +2,16 @@ import { Test } from '@nestjs/testing';
 import { QueueScheduler, Worker } from 'bullmq';
 import { of } from 'rxjs';
 import {
+  IBullMqModuleOptions,
+  QueueSchedulerFactory,
+  WorkerFactory,
+} from '../';
+import {
   createMockFromClass,
   createMockProviders,
   Mock,
 } from '../../test/nest-test-helpers';
 import { BULLMQ_MODULE_OPTIONS } from '../constants';
-import {
-  IBullMqModuleOptions,
-  QueueSchedulerFactory,
-  WorkerFactory,
-} from '../';
 import { BullMqServer } from './bull-mq.server';
 
 describe('BullMqServer', () => {
