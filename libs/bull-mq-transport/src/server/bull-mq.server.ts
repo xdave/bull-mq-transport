@@ -5,8 +5,9 @@ import {
   Transport,
 } from '@nestjs/microservices';
 import { Job, QueueScheduler, Worker } from 'bullmq';
+import { IBullMqModuleOptions } from '../';
 import { BULLMQ_MODULE_OPTIONS } from '../constants/bull-mq.constants';
-import { IBullMqModuleOptions, QueueSchedulerFactory } from '../';
+import { QueueSchedulerFactory } from '../factories/queue-scheduler.factory';
 import { WorkerFactory } from '../factories/worker.factory';
 
 @Injectable()
