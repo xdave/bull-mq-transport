@@ -7,7 +7,7 @@ export class WorkerFactory {
     name: string,
     processor?: string | Processor<T, R, N>,
     opts?: WorkerOptions,
-  ): Worker {
+  ): Worker<T, R, N> {
     return new Worker(name, processor, opts);
   }
 }
