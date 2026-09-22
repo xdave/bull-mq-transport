@@ -26,7 +26,7 @@
     "dist"
   ],
   "peerDependencies": {
-    "@nestjs/common": "^8.x",
+    "@nestjs/common": "^8.x || ^9.x",
     "@nestjs/microservices": ">=8.x",
     "bullmq": ">=1.54.x"
   },
